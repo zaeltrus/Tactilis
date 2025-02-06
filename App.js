@@ -1,216 +1,208 @@
+// App.js
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-  Vibration,
+    SafeAreaView,
+    View,
+    Text,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
 } from 'react-native';
 import AppStyles from './styles/AppStyles';
-import Keyboard from './components/Keyboard';
+import Keyboard from '../Tactilis2/components/Keyboard';
+import RadialBackground from '../Tactilis2/components/RadialBackground';
 
 export default function App() {
-  const [isBrailleInput, setIsBrailleInput] = useState(false);
-  const [selectedDots, setSelectedDots] = useState([]);
-  const [previewLetter, setPreviewLetter] = useState('');
-  const [finalText, setFinalText] = useState('');
-  const [chatMessages, setChatMessages] = useState([]);
+    // Normal chat mode states
+    const [message, setMessage] = useState('');
+    const [chatMessages, setChatMessages] = useState([]);
 
-  const vibrationPatterns = {
-    A: [100],
-    B: [100, 200, 100],
-    C: [100, 200, 100, 200, 100],
-    D: [100, 300, 100],
-    E: [100, 300, 100, 200, 100],
-    F: [100, 300, 100, 300, 100, 200, 100],
-    G: [100, 200, 100, 300, 100],
-    H: [100, 200, 100, 300, 100, 300, 100],
-    I: [100, 200, 100, 300, 100, 300, 100, 200, 100],
-    J: [100, 200, 100, 300, 100, 300, 100, 300, 100],
-  };
+    // Braille mode states
+    const [isBrailleMode, setIsBrailleMode] = useState(false);
+    const [selectedDots, setSelectedDots] = useState([]);
+    const [previewLetter, setPreviewLetter] = useState('');
+    const [finalText, setFinalText] = useState('');
 
-  const brailleToLatin = {
-    '1': 'A',
-    '12': 'B',
-    '14': 'C',
-    '145': 'D',
-    '15': 'E',
-    '124': 'F',
-    '1245': 'G',
-    '125': 'H',
-    '24': 'I',
-    '245': 'J',
-  };
+    // Normal chat mode handlers
+    const handleSend = () => {
+        if (message.trim()) {
+            const newMsg = { id: Date.now().toString(), text: message, sent: true };
+            setChatMessages([newMsg, ...chatMessages]);
+            setMessage('');
+        }
+    };
 
-  const playVibrationPattern = (pattern) => {
-    if (!pattern) return;
+    const handleKeyPress = (key) => setMessage((prev) => prev + key);
+    const handleDelete = () => setMessage((prev) => prev.slice(0, -1));
+    const handleEnter = () => handleSend();
+    const handleNumbers = () => {};
+    const handleEmoji = () => {};
 
-    let delay = 0;
-    pattern.forEach((duration) => {
-      setTimeout(() => {
-        Vibration.vibrate(duration);
-      }, delay);
-      delay += duration + 100;
-    });
-  };
+    // Toggle between chat mode and full-screen Braille mode
+    const handleBrailleInputToggle = () => {
+        setIsBrailleMode((prev) => !prev);
+        setSelectedDots([]);
+        setPreviewLetter('');
+        setFinalText('');
+    };
 
-  const handleDotPress = (dot) => {
-    const updatedDots = [...selectedDots, dot].sort().join('');
-    setSelectedDots((prev) => [...prev, dot]);
-    const letter = brailleToLatin[updatedDots] || '?';
-    setPreviewLetter(letter);
+    const handleKeyboardSelect = () => {};
+    const handleMicPress = () => {};
 
-    if (vibrationPatterns[letter]) {
-      playVibrationPattern(vibrationPatterns[letter]);
-    }
-  };
+    // Braille mode functions
+    const handleDotPress = (dot) => {
+        const newDots = [...selectedDots, dot].sort();
+        setSelectedDots(newDots);
+        const mapping = {
+            '1': 'A',
+            '12': 'B',
+            '14': 'C',
+            '145': 'D',
+            '15': 'E',
+            '124': 'F',
+            '1245': 'G',
+            '125': 'H',
+            '24': 'I',
+            '245': 'J',
+        };
+        setPreviewLetter(mapping[newDots.join('')] || '?');
+    };
 
-  const handleAccept = () => {
-    if (previewLetter) {
-      setFinalText((prev) => prev + previewLetter);
-      setSelectedDots([]);
-      setPreviewLetter('');
-    }
-  };
+    const handleAccept = () => {
+        if (previewLetter) {
+            setFinalText((prev) => prev + previewLetter);
+            setSelectedDots([]);
+            setPreviewLetter('');
+        }
+    };
 
-  const handleDelete = () => {
-    if (isBrailleInput) {
-      setSelectedDots([]);
-      setPreviewLetter('');
-    } else if (finalText.length > 0) {
-      setFinalText((prev) => prev.slice(0, -1)); // Remove the last character
-    }
-  };
+    const handleBrailleDelete = () => {
+        setSelectedDots([]);
+        setPreviewLetter('');
+    };
 
-  const handleSend = () => {
-    if (finalText.trim()) {
-      setChatMessages((prevMessages) => [
-        { text: finalText, sent: true },
-        ...prevMessages,
-      ]);
-      setFinalText('');
-    }
-  };
+    const handleBrailleSend = () => {
+        if (finalText.trim()) {
+            const newMsg = { id: Date.now().toString(), text: finalText, sent: true };
+            setChatMessages([newMsg, ...chatMessages]);
+            setFinalText('');
+            setIsBrailleMode(false);
+        }
+    };
 
-  const renderMessage = ({ item }) => (
-      <View
-          style={[
-            AppStyles.messageBubble,
-            item.sent ? AppStyles.sentMessage : AppStyles.receivedMessage,
-          ]}
-      >
-        <Text style={AppStyles.messageText}>{item.text}</Text>
-      </View>
-  );
+    // Render normal chat mode (without the gradient header)
+    const renderChatMode = () => (
+        <>
+            {/* Simple header removed or replaced with a plain header if desired */}
+            <View style={AppStyles.header}>
+                <Text style={AppStyles.headerText}></Text>
+            </View>
+            <View style={AppStyles.contentContainer}>
+                <View style={AppStyles.chatContainer}>
+                    <FlatList
+                        data={chatMessages}
+                        renderItem={({ item }) => (
+                            <View
+                                style={[
+                                    AppStyles.messageBubble,
+                                    item.sent ? AppStyles.sentMessage : AppStyles.receivedMessage,
+                                ]}
+                            >
+                                <Text style={AppStyles.messageText}>{item.text}</Text>
+                            </View>
+                        )}
+                        keyExtractor={(item) => item.id}
+                        inverted
+                    />
+                </View>
+                <View style={AppStyles.inputContainer}>
+                    <TextInput
+                        style={AppStyles.input}
+                        value={message}
+                        onChangeText={setMessage}
+                        placeholder="Type a message"
+                        placeholderTextColor="#888"
+                    />
+                    <TouchableOpacity style={AppStyles.sendButton} onPress={handleSend}>
+                        <Text style={AppStyles.sendButtonText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <Keyboard
+                onKeyPress={handleKeyPress}
+                onDelete={handleDelete}
+                onEnter={handleEnter}
+                onEmoji={handleEmoji}
+                onNumbers={handleNumbers}
+                onBrailleInput={handleBrailleInputToggle} // Tapping ⇧ toggles Braille mode
+                onKeyboardSelect={handleKeyboardSelect}
+                onMicPress={handleMicPress}
+            />
+        </>
+    );
 
-  if (isBrailleInput) {
-    return (
+    // Render full-screen Braille input mode
+    const renderBrailleMode = () => (
         <SafeAreaView style={AppStyles.container}>
-          {/* Header */}
-          <View style={AppStyles.header}>
-            <TouchableOpacity onPress={() => setIsBrailleInput(false)}>
-              <Text style={AppStyles.headerText}>Back</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Preview Letter Area */}
-          <View style={AppStyles.previewArea}>
-            <View style={AppStyles.previewSquare}>
-              <Text style={AppStyles.previewText}>{previewLetter}</Text>
+            <View style={AppStyles.brailleHeader}>
+                <TouchableOpacity onPress={handleBrailleInputToggle}>
+                    <Text style={AppStyles.brailleHeaderText}>Back</Text>
+                </TouchableOpacity>
             </View>
-          </View>
-
-          {/* Final Text Area */}
-          <View style={AppStyles.translationArea}>
-            <Text style={AppStyles.translationText}>{finalText}</Text>
-          </View>
-
-          {/* Braille Grid */}
-          <View style={AppStyles.brailleGrid}>
-            <View style={AppStyles.brailleColumn}>
-              {[1, 2, 3].map((row) => (
-                  <TouchableOpacity
-                      key={`col1-row${row}`}
-                      style={[
-                        AppStyles.dot,
-                        selectedDots.includes(row.toString()) && AppStyles.dotFilled,
-                      ]}
-                      onPress={() => handleDotPress(row.toString())}
-                  />
-              ))}
+            <View style={AppStyles.previewArea}>
+                <Text style={AppStyles.previewText}>{previewLetter}</Text>
             </View>
-            <View style={AppStyles.brailleColumn}>
-              {[4, 5, 6].map((row) => (
-                  <TouchableOpacity
-                      key={`col2-row${row}`}
-                      style={[
-                        AppStyles.dot,
-                        selectedDots.includes(row.toString()) && AppStyles.dotFilled,
-                      ]}
-                      onPress={() => handleDotPress(row.toString())}
-                  />
-              ))}
+            <View style={AppStyles.translationArea}>
+                <Text style={AppStyles.translationText}>{finalText}</Text>
             </View>
-          </View>
-
-          {/* Accept, Send, and Delete Buttons */}
-          <View style={[AppStyles.bottomButtonsContainer, { flexDirection: 'row', justifyContent: 'space-evenly', paddingHorizontal: 20, marginBottom: 20 }]}>
-            <TouchableOpacity style={[AppStyles.deleteButton, { flex: 1, marginHorizontal: 5 }]} onPress={handleDelete}>
-              <Text style={AppStyles.deleteText}>Delete</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[AppStyles.sendButtonBraille, { backgroundColor: 'blue', flex: 1, marginHorizontal: 5 }]} onPress={handleSend}>
-              <Text style={AppStyles.acceptText}>Send</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[AppStyles.acceptButton, { flex: 1, marginHorizontal: 5 }]} onPress={handleAccept}>
-              <Text style={AppStyles.acceptText}>Accept</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={AppStyles.brailleGrid}>
+                <View style={AppStyles.brailleColumn}>
+                    {[1, 2, 3].map((dot) => (
+                        <TouchableOpacity
+                            key={`col1-${dot}`}
+                            style={[
+                                AppStyles.dot,
+                                selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
+                            ]}
+                            onPress={() => handleDotPress(dot.toString())}
+                        />
+                    ))}
+                </View>
+                <View style={AppStyles.brailleColumn}>
+                    {[4, 5, 6].map((dot) => (
+                        <TouchableOpacity
+                            key={`col2-${dot}`}
+                            style={[
+                                AppStyles.dot,
+                                selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
+                            ]}
+                            onPress={() => handleDotPress(dot.toString())}
+                        />
+                    ))}
+                </View>
+            </View>
+            <View style={AppStyles.bottomButtonsContainer}>
+                <TouchableOpacity onPress={handleBrailleDelete} style={AppStyles.deleteButton}>
+                    <Text style={AppStyles.deleteText}>Delete</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleBrailleSend} style={AppStyles.sendButtonBraille}>
+                    <Text style={AppStyles.acceptText}>Send</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleAccept} style={AppStyles.acceptButton}>
+                    <Text style={AppStyles.acceptText}>Accept</Text>
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     );
-  }
 
-  return (
-      <SafeAreaView style={AppStyles.container}>
-        <View style={AppStyles.header}>
-          <Text style={AppStyles.headerText}>Chat</Text>
-        </View>
-
-        <FlatList
-            data={chatMessages}
-            renderItem={renderMessage}
-            keyExtractor={(item, index) => index.toString()}
-            inverted
-            contentContainerStyle={AppStyles.chatArea}
-        />
-
-        <View style={AppStyles.inputBar}>
-          <TextInput
-              style={AppStyles.input}
-              value={finalText}
-              onChangeText={setFinalText}
-              placeholder="Type your message..."
-          />
-          <TouchableOpacity style={AppStyles.sendButton} onPress={handleSend}>
-            <Text style={AppStyles.acceptText}>Send</Text>
-          </TouchableOpacity>
-        </View>
-
-      <Keyboard
-          onKeyPress={(key) => setFinalText((prev) => prev + key)}
-          onEnter={handleSend}
-          onBrailleInput={() => setIsBrailleInput(true)}
-          onDelete={handleDelete} // Pass the delete handler
-      />
-      </SafeAreaView>
-  );
+    return (
+        <RadialBackground>
+            <SafeAreaView style={AppStyles.container}>
+                {isBrailleMode ? renderBrailleMode() : renderChatMode()}
+            </SafeAreaView>
+        </RadialBackground>
+    );
 }
-
-
-
-
-
 
 
 
