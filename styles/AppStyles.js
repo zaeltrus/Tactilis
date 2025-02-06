@@ -1,153 +1,215 @@
+// AppStyles.js
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const keyWidth = width * 0.09; // Key size for keyboard
-const keyHeight = keyWidth; // Keep keys square
-const spacebarWidth = width * 0.5; // Spacebar spans 60% of screen width
-const enterWidth = keyWidth * 2; // Enter button is twice the size of regular keys
-const dotSize = width * 0.25; // Bigger dots for Braille input
 
-const AppStyles = StyleSheet.create({
+// Base key size: 9% of screen width.
+const keySize = width * 0.09;
+const spacebarWidth = width * 0.5;
+const enterWidth = keySize * 2;
+
+export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000', // Black background for high contrast
+        backgroundColor: 'transparent',
     },
+    // Content container for normal chat mode (chat area and input)
+    contentContainer: {
+        flex: 1,
+        paddingBottom: keySize * 5.5, // Reserve space for the keyboard
+    },
+    // Header for normal chat mode
     header: {
-        height: 60,
-        backgroundColor: '#FFD700', // Bright yellow header for visibility
+        height: 80, // Increased height so text is lower on the screen
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 15,
+        paddingTop: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
     },
     headerText: {
-        color: '#000', // Black text for contrast
+        color: '#FFFFFF',
         fontSize: 22,
         fontWeight: 'bold',
     },
-    chatArea: {
-        flexGrow: 1,
-        padding: 10,
-        justifyContent: 'flex-end', // Align messages at the bottom
-    },
-    messageBubble: {
-        maxWidth: '75%',
-        padding: 12,
-        borderRadius: 12,
-        marginVertical: 6,
-    },
-    sentMessage: {
-        backgroundColor: '#FFD700', // Bright yellow for sent messages
-        alignSelf: 'flex-end', // Align sent messages to the right
-    },
-    receivedMessage: {
-        backgroundColor: '#333', // Dark gray for received messages
-        alignSelf: 'flex-start', // Align received messages to the left
-    },
-    messageText: {
-        color: '#000', // Black text inside messages
-        fontSize: 30,
-    },
-    inputBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    chatContainer: {
+        flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderTopWidth: 1,
-        borderTopColor: '#FFD700',
-        backgroundColor: '#000',
+    },
+    messageBubble: {
+        padding: 12,
+        borderRadius: 16,
+        marginVertical: 6,
+        maxWidth: '75%',
+    },
+    sentMessage: {
+        backgroundColor: '#5B67FF',
+        alignSelf: 'flex-end',
+    },
+    receivedMessage: {
+        backgroundColor: '#27293D',
+        alignSelf: 'flex-start',
+    },
+    messageText: {
+        fontSize: 16,
+        color: '#FFFFFF',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 5,
+        borderTopWidth: 0.5,
+        borderColor: '#3A3A4A',
+        backgroundColor: '#2E2E3A',
     },
     input: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: '#FFD700',
-        borderRadius: 25,
-        paddingHorizontal: 15,
-        height: 45,
-        marginRight: 10,
-        color: '#FFD700', // Yellow text for the input field
-        backgroundColor: '#333', // Dark gray background for input
-        fontSize: 30,
+        height: 40,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        backgroundColor: '#27293D',
+        color: '#FFFFFF',
+        fontSize: 16,
     },
     sendButton: {
-        backgroundColor: '#FFD700',
-        borderRadius: 25,
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        justifyContent: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        backgroundColor: '#5B67FF',
+        borderRadius: 20,
+        marginLeft: 8,
         alignItems: 'center',
+        justifyContent: 'center',
     },
+    sendButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    // Keyboard container positioned absolutely at the bottom.
     keyboard: {
-        width: '100%',
-        paddingHorizontal: 0,
-        backgroundColor: '#000', // Black background for the keyboard
-        paddingVertical: 20, // Extra padding for spacing
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#2E2E3A',
+        borderTopWidth: 1,
+        borderColor: '#3A3A4A',
+        paddingVertical: 4,
+        zIndex: 10,
+        elevation: 10,
     },
+    // Row style for keyboard keys (using space-around for even gaps)
     row: {
-        flexDirection: 'row', // Arrange keys in a row
-        justifyContent: 'space-between', // Align keys evenly
-        alignItems: 'center', // Align keys vertically
-        marginBottom: 10, // Spacing between rows
-    },
-    topRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         alignItems: 'center',
-        marginBottom: 10,
+        marginVertical: 4, // Vertical spacing between rows
     },
-    secondRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around', // Closer spacing between keys
-        alignItems: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 10, // Slight padding for alignment
+    // Row offset for rows that need to be shifted (for iOS-style layout)
+    rowOffsetHalf: {
+        marginLeft: keySize * 0.5,
     },
-    thirdRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around', // Closer spacing for third row
-        alignItems: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 10, // Slight padding for alignment
-    },
-    functionRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 20, // Extra padding for function keys
-    },
+    // Each key's style
     key: {
-        marginHorizontal: 2, // Reduced spacing between keys for compact layout
-        alignItems: 'center', // Center text inside the key
-        justifyContent: 'center', // Center text inside the key
-        backgroundColor: '#FFD700', // Bright yellow for keys
-        borderRadius: 10, // Slightly rounded corners
-        width: keyWidth, // Adjusted relative width for keys
-        height: keyHeight, // Adjusted relative height for keys
+        width: keySize,
+        height: keySize,
+        backgroundColor: '#3A3A4A',
+        borderRadius: 8,
+        marginHorizontal: 2,
     },
-    functionKey: {
-        marginHorizontal: 4, // Larger margin for function keys
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#FFD700',
-        borderRadius: 10,
-        width: keyWidth, // Same width as regular keys
-        height: keyHeight, // Same height as regular keys
+    keyText: {
+        fontSize: 28,
+        color: '#FFFFFF',
+        textAlign: 'center',
+    },
+    specialKeyText: {
+        fontSize: 20,
+        color: '#FFFFFF',
+        textAlign: 'center',
     },
     spacebar: {
-        backgroundColor: '#FFD700', // Yellow for spacebar
-        borderRadius: 10,
-        width: spacebarWidth, // Spacebar spans a percentage of screen width
-        height: keyHeight, // Match height with other keys
-        alignSelf: 'center',
-        justifyContent: 'center',
+        width: spacebarWidth,
+        height: keySize,
+        backgroundColor: '#3A3A4A',
+        borderRadius: 8,
     },
     enterKey: {
-        backgroundColor: '#FFD700', // Yellow for enter key
-        borderRadius: 10,
-        width: enterWidth, // Twice the size of regular keys
-        height: keyHeight, // Match height with other keys
+        width: enterWidth,
+        height: keySize,
+        backgroundColor: '#3A3A4A',
+        borderRadius: 8,
+    },
+    bottomRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        marginTop: 2,
+        paddingHorizontal: 10,
+    },
+    extraButton: {
+        width: keySize * 1.3,
+        height: keySize * 1.3,
+        backgroundColor: '#3A3A4A',
+        borderRadius: (keySize * 1.3) / 2,
         alignItems: 'center',
         justifyContent: 'center',
     },
+    extraButtonText: {
+        fontSize: 24,
+        color: '#FFFFFF',
+        textAlign: 'center',
+    },
+    // -------------------- Styles for Braille Input Mode --------------------
+    // Header in braille mode (with back button)
+    brailleHeader: {
+        height: 60,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingHorizontal: 15,
+        paddingTop: 10,
+        backgroundColor: '#2E2E3A',
+    },
+    brailleHeaderText: {
+        color: '#FFFFFF',
+        fontSize: 22,
+        fontWeight: 'bold',
+    },
+    // Preview area for current braille input
+    previewArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#7435FD',
+        padding: 10,
+        margin: 20,
+        backgroundColor: '#27293D',
+    },
+    previewText: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        color: '#C381E7',
+    },
+    // Translation area (final text)
+    translationArea: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#7435FD',
+        padding: 10,
+        marginHorizontal: 20,
+        marginVertical: 10,
+        backgroundColor: '#27293D',
+    },
+    translationText: {
+        fontSize: 24,
+        color: '#C381E7',
+    },
+    // Braille grid styling
     brailleGrid: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -159,67 +221,41 @@ const AppStyles = StyleSheet.create({
         alignItems: 'center',
     },
     dot: {
-        width: dotSize,
-        height: dotSize,
-        borderRadius: dotSize / 2,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         borderWidth: 3,
-        borderColor: '#FFD700',
+        borderColor: '#7435FD',
         marginVertical: 12,
-        backgroundColor: '#000',
+        backgroundColor: '#000802',
     },
     dotFilled: {
-        backgroundColor: '#FFD700',
+        backgroundColor: '#C381E7',
     },
-    previewArea: {
+    // Bottom buttons container for braille mode
+    bottomButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: '#FFD700',
-        padding: 10,
-        marginHorizontal: 150,
-        marginVertical: 20,
-        backgroundColor: '#333',
-    },
-    previewSquare: {
-        width: 80,
-        height: 80,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#333',
-        borderRadius: 10,
-    },
-    previewText: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        color: '#FFD700',
-    },
-    textArea: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: '#FFD700',
-        padding: 10,
-        marginHorizontal: 20,
-        marginVertical: 10,
-        backgroundColor: '#000',
-    },
-    textAreaContent: {
-        fontSize: 24,
-        color: '#FFD700',
+        marginBottom: 20,
     },
     acceptButton: {
-        backgroundColor: '#4CAF50', // Green for accept
+        backgroundColor: '#27AE60',
         borderRadius: 10,
         paddingHorizontal: 20,
         paddingVertical: 10,
-        margin: 10,
     },
     deleteButton: {
-        backgroundColor: '#FF0000', // Red for delete
+        backgroundColor: '#E74C3C',
         borderRadius: 10,
         paddingHorizontal: 20,
         paddingVertical: 10,
-        margin: 10,
+    },
+    sendButtonBraille: {
+        backgroundColor: '#27AE60',
+        borderRadius: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
     acceptText: {
         color: '#FFF',
@@ -231,52 +267,4 @@ const AppStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    collectedCharactersArea: {
-        marginVertical: 20,
-        padding: 10,
-        borderWidth: 2,
-        borderColor: '#FFD700',
-        borderRadius: 10,
-        backgroundColor: '#000',
-    },
-    collectedCharactersText: {
-        fontSize: 24,
-        color: '#FFD700',
-        textAlign: 'center',
-    },
-    translationArea: {
-        marginTop: 20,
-        padding: 10,
-        borderWidth: 2,
-        borderColor: '#FFD700',
-        borderRadius: 10,
-        backgroundColor: '#000',
-    },
-    translationText: {
-        fontSize: 24,
-        color: '#FFD700',
-        textAlign: 'center',
-    },
-    sendButtonBraille: {
-        backgroundColor: '#4CAF50',
-        borderRadius: 10,
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        marginTop: 20,
-        alignSelf: 'center',
-    },
 });
-
-export default AppStyles;
-
-
-
-
-
-
-
-
-
-
-
-
