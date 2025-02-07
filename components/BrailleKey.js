@@ -1,7 +1,7 @@
 // BrailleKey.js
 import React from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
-import AppStyles from '../../Tactilis2/styles/AppStyles';
+import AppStyles from '../styles/AppStyles';
 
 export default function BrailleKey({ label, onPress, style, textStyle }) {
     return (
