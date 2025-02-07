@@ -9,8 +9,8 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import AppStyles from './styles/AppStyles';
-import Keyboard from '../Tactilis2/components/Keyboard';
-import RadialBackground from '../Tactilis2/components/RadialBackground';
+import Keyboard from './components/Keyboard';
+import RadialBackground from './components/RadialBackground';
 
 export default function App() {
     // Normal chat mode states

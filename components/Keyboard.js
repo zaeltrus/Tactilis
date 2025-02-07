@@ -3,7 +3,7 @@ import React from 'react';
 import { View } from 'react-native';
 import BrailleKey from './BrailleKey';
 import GradientButton from './GradientButton';
-import AppStyles from '../../Tactilis2/styles/AppStyles';
+import AppStyles from '../styles/AppStyles';
 
 
 export default function Keyboard({
