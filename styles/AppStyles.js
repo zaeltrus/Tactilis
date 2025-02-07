@@ -163,6 +163,8 @@ export default StyleSheet.create({
         fontSize: 24,
         color: '#FFFFFF',
         textAlign: 'center',
+        justifyContent: 'center',
+        padding: 0,
     },
     // -------------------- Styles for Braille Input Mode --------------------
     // Header in braille mode (with back button)
@@ -221,9 +223,9 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     dot: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: 120,
+        height: 120,
+        borderRadius: 60,
         borderWidth: 3,
         borderColor: '#7435FD',
         marginVertical: 12,
