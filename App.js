@@ -144,56 +144,69 @@ export default function App() {
     // Render full-screen Braille input mode
     const renderBrailleMode = () => (
         <SafeAreaView style={AppStyles.container}>
+            {/* Header */}
             <View style={AppStyles.brailleHeader}>
                 <TouchableOpacity onPress={handleBrailleInputToggle}>
                     <Text style={AppStyles.brailleHeaderText}>Back</Text>
                 </TouchableOpacity>
             </View>
-            <View style={AppStyles.previewArea}>
-                <Text style={AppStyles.previewText}>{previewLetter}</Text>
-            </View>
-            <View style={AppStyles.translationArea}>
-                <Text style={AppStyles.translationText}>{finalText}</Text>
-            </View>
-            <View style={AppStyles.brailleGrid}>
-                <View style={AppStyles.brailleColumn}>
-                    {[1, 2, 3].map((dot) => (
-                        <TouchableOpacity
-                            key={`col1-${dot}`}
-                            style={[
-                                AppStyles.dot,
-                                selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
-                            ]}
-                            onPress={() => handleDotPress(dot.toString())}
-                        />
-                    ))}
+
+            {/* Main Content: Braille Grid and Preview */}
+            <View style={AppStyles.brailleContent}>
+                {/* Braille Grid: Center of the screen */}
+                <View style={AppStyles.brailleGrid}>
+                    <View style={AppStyles.brailleColumn}>
+                        {[1, 2, 3].map((dot) => (
+                            <TouchableOpacity
+                                key={`col1-${dot}`}
+                                style={[
+                                    AppStyles.dot,
+                                    selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
+                                ]}
+                                onPress={() => handleDotPress(dot.toString())}
+                            />
+                        ))}
+                    </View>
+                    <View style={AppStyles.brailleColumn}>
+                        {[4, 5, 6].map((dot) => (
+                            <TouchableOpacity
+                                key={`col2-${dot}`}
+                                style={[
+                                    AppStyles.dot,
+                                    selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
+                                ]}
+                                onPress={() => handleDotPress(dot.toString())}
+                            />
+                        ))}
+                    </View>
                 </View>
-                <View style={AppStyles.brailleColumn}>
-                    {[4, 5, 6].map((dot) => (
-                        <TouchableOpacity
-                            key={`col2-${dot}`}
-                            style={[
-                                AppStyles.dot,
-                                selectedDots.includes(dot.toString()) && AppStyles.dotFilled,
-                            ]}
-                            onPress={() => handleDotPress(dot.toString())}
-                        />
-                    ))}
+
+                {/* Preview Area: Shows the currently selected Braille letter */}
+                <View style={AppStyles.previewArea}>
+                    <Text style={AppStyles.previewText}>{previewLetter}</Text>
+                </View>
+
+                {/* Translation Area: Displays the final text */}
+                <View style={AppStyles.translationArea}>
+                    <Text style={AppStyles.translationText}>{finalText}</Text>
                 </View>
             </View>
+
+            {/* Bottom Control Buttons */}
             <View style={AppStyles.bottomButtonsContainer}>
                 <TouchableOpacity onPress={handleBrailleDelete} style={AppStyles.deleteButton}>
                     <Text style={AppStyles.deleteText}>Delete</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleBrailleSend} style={AppStyles.sendButtonBraille}>
-                    <Text style={AppStyles.acceptText}>Send</Text>
-                </TouchableOpacity>
                 <TouchableOpacity onPress={handleAccept} style={AppStyles.acceptButton}>
                     <Text style={AppStyles.acceptText}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleBrailleSend} style={AppStyles.sendButtonBraille}>
+                    <Text style={AppStyles.acceptText}>Send</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
+
 
     return (
         <RadialBackground>
