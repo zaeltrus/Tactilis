@@ -259,6 +259,17 @@ export default StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
+    spaceButton: {
+        backgroundColor: '#3A3A4A',
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderRadius: 10,
+        marginHorizontal: 5,
+    },
+    spaceButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+    },
     acceptText: {
         color: '#FFF',
         fontSize: 18,

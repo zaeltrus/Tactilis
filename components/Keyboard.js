@@ -1,6 +1,6 @@
 // components/Keyboard.js
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import BrailleKey from './BrailleKey';
 import GradientButton from './GradientButton';
 import AppStyles from '../styles/AppStyles';
@@ -15,16 +15,17 @@ export default function Keyboard({
                                      onBrailleInput,
                                      onKeyboardSelect,
                                      onMicPress,
-                                     onThemeToggle, // New prop for theme toggle
-                                     isHighContrast, // New prop indicating if high contrast is active
+                                     onThemeToggle,
+                                     isHighContrast,
                                  }) {
+    console.log('Keyboard rendered'); // Debug log
+
     const topRowKeys = ['⠟', '⠺', '⠑', '⠗', '⠞', '⠽', '⠥', '⠊', '⠕', '⠏'];
     const secondRowKeys = ['⠁', '⠎', '⠙', '⠋', '⠛', '⠓', '⠚', '⠅', '⠇'];
     const thirdRowExtraKey = '⇧';
     const thirdRowKeys = ['⠵', '⠭', '⠉', '⠧', '⠃', '⠝', '⠍'];
     const fourthRowKeys = { numbers: '⠼', emoji: '😊', space: 'Space', enter: 'Enter' };
 
-    // Override styles when high contrast is active.
     const keyOverrideStyle = {
         backgroundColor: '#333333',
         borderColor: '#FFFF00',
@@ -37,7 +38,11 @@ export default function Keyboard({
     const extraButtonTextStyle = isHighContrast ? { color: '#000000', fontWeight: 'bold' } : {};
 
     return (
-        <View style={[AppStyles.keyboard, isHighContrast && { backgroundColor: '#333333' }]}>
+        <View
+            style={[AppStyles.keyboard, isHighContrast && { backgroundColor: '#333333' }]}
+            accessible={true}
+            accessibilityLabel="Keyboard"
+        >
             {/* Top row */}
             <View style={AppStyles.row}>
                 {topRowKeys.map((key, index) => (
@@ -47,6 +52,8 @@ export default function Keyboard({
                         onPress={() => onKeyPress(key)}
                         style={isHighContrast ? keyOverrideStyle : {}}
                         textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                        accessibilityLabel={`Key ${key}`}
+                        accessibilityHint={`Press to input ${key}`}
                     />
                 ))}
             </View>
@@ -60,6 +67,8 @@ export default function Keyboard({
                         onPress={() => onKeyPress(key)}
                         style={isHighContrast ? keyOverrideStyle : {}}
                         textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                        accessibilityLabel={`Key ${key}`}
+                        accessibilityHint={`Press to input ${key}`}
                     />
                 ))}
             </View>
@@ -71,6 +80,8 @@ export default function Keyboard({
                     onPress={onBrailleInput}
                     style={isHighContrast ? keyOverrideStyle : {}}
                     textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                    accessibilityLabel="Toggle Braille input mode"
+                    accessibilityHint="Switch between chat and Braille input modes"
                 />
                 {thirdRowKeys.map((key, index) => (
                     <BrailleKey
@@ -79,6 +90,8 @@ export default function Keyboard({
                         onPress={() => onKeyPress(key)}
                         style={isHighContrast ? keyOverrideStyle : {}}
                         textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                        accessibilityLabel={`Key ${key}`}
+                        accessibilityHint={`Press to input ${key}`}
                     />
                 ))}
                 <BrailleKey
@@ -86,6 +99,8 @@ export default function Keyboard({
                     onPress={onDelete}
                     style={isHighContrast ? keyOverrideStyle : {}}
                     textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                    accessibilityLabel="Delete"
+                    accessibilityHint="Deletes the last character"
                 />
             </View>
 
@@ -96,24 +111,32 @@ export default function Keyboard({
                     onPress={onNumbers}
                     style={isHighContrast ? keyOverrideStyle : {}}
                     textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                    accessibilityLabel="Numbers"
+                    accessibilityHint="Switch to number input mode"
                 />
                 <BrailleKey
                     label={fourthRowKeys.emoji}
                     onPress={onEmoji}
                     style={isHighContrast ? keyOverrideStyle : {}}
                     textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                    accessibilityLabel="Emoji"
+                    accessibilityHint="Switch to emoji input mode"
                 />
                 <BrailleKey
                     label={fourthRowKeys.space}
                     onPress={() => onKeyPress(' ')}
                     style={isHighContrast ? { ...AppStyles.spacebar, ...keyOverrideStyle } : AppStyles.spacebar}
                     textStyle={isHighContrast ? keyTextOverrideStyle : AppStyles.specialKeyText}
+                    accessibilityLabel="Space"
+                    accessibilityHint="Insert a space"
                 />
                 <BrailleKey
                     label={fourthRowKeys.enter}
                     onPress={onEnter}
                     style={isHighContrast ? { ...AppStyles.enterKey, ...keyOverrideStyle } : AppStyles.enterKey}
                     textStyle={isHighContrast ? keyTextOverrideStyle : AppStyles.specialKeyText}
+                    accessibilityLabel="Enter"
+                    accessibilityHint="Submit your input"
                 />
             </View>
 
@@ -121,47 +144,69 @@ export default function Keyboard({
             <View style={AppStyles.bottomRow}>
                 <GradientButton
                     onPress={onKeyboardSelect}
-                    style={AppStyles.extraButton}
+                    style={[AppStyles.extraButton, { padding: 0 }]}
                     colors={extraButtonColors}
                     textStyle={extraButtonTextStyle}
+                    noPadding={true}
+                    accessibilityLabel="Select keyboard"
+                    accessibilityHint="Switch to a different keyboard layout"
                 >
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name="globe-outline" size={24} color={isHighContrast ? "#000000" : "#FFFFFF"} />
-                    </View>
+                    <Ionicons
+                        name="globe-outline"
+                        size={24}
+                        color={isHighContrast ? '#000000' : '#FFFFFF'}
+                        style={{ alignSelf: 'center' }}
+                    />
                 </GradientButton>
                 <GradientButton
                     onPress={onBrailleInput}
-                    style={AppStyles.extraButton}
+                    style={[AppStyles.extraButton, { padding: 0 }]}
                     colors={extraButtonColors}
                     textStyle={extraButtonTextStyle}
+                    noPadding={true}
+                    accessibilityLabel="Braille input mode"
+                    accessibilityHint="Switch to Braille input mode"
                 >
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name="grid-outline" size={24} color={isHighContrast ? "#000000" : "#FFFFFF"} />
-                    </View>
+                    <Ionicons
+                        name="finger-print-outline"
+                        size={24}
+                        color={isHighContrast ? '#000000' : '#FFFFFF'}
+                        style={{ alignSelf: 'center' }}
+                    />
                 </GradientButton>
                 <GradientButton
                     onPress={onMicPress}
-                    style={AppStyles.extraButton}
+                    style={[AppStyles.extraButton, { padding: 0 }]}
                     colors={extraButtonColors}
                     textStyle={extraButtonTextStyle}
+                    noPadding={true}
+                    accessibilityLabel="Microphone"
+                    accessibilityHint="Activate voice input"
                 >
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name="mic-outline" size={24} color={isHighContrast ? "#000000" : "#FFFFFF"} />
-                    </View>
+                    <Ionicons
+                        name="mic-outline"
+                        size={24}
+                        color={isHighContrast ? '#000000' : '#FFFFFF'}
+                        style={{ alignSelf: 'center' }}
+                    />
                 </GradientButton>
-                {/* High Contrast Toggle remains as text (HC) */}
                 <GradientButton
                     onPress={onThemeToggle}
-                    style={AppStyles.extraButton}
+                    style={[AppStyles.extraButton, { padding: 0 }]}
                     colors={extraButtonColors}
                     textStyle={extraButtonTextStyle}
+                    noPadding={true}
+                    accessibilityLabel="Toggle high contrast mode"
+                    accessibilityHint="Switch between high contrast and normal display modes"
                 >
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={isHighContrast ? { color: '#000000', fontWeight: 'bold' } : {}}>HC</Text>
-                    </View>
+                    <Ionicons
+                        name="invert-mode-outline"
+                        size={24}
+                        color={isHighContrast ? '#000000' : '#FFFFFF'}
+                        style={{ alignSelf: 'center' }}
+                    />
                 </GradientButton>
             </View>
         </View>
     );
 }
-
