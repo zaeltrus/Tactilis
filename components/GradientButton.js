@@ -3,7 +3,20 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function GradientButton({ onPress, style, textStyle, children, colors }) {
+export default function GradientButton({
+                                           onPress,
+                                           style,
+                                           textStyle,
+                                           children,
+                                           colors,
+                                           noPadding,
+                                           accessibilityLabel,
+                                           accessibilityHint,
+                                       }) {
+    // If noPadding is true, override the default padding
+    const paddingOverride = noPadding ? { paddingHorizontal: 0, paddingVertical: 0 } : {};
+    const combinedStyle = [styles.gradient, paddingOverride, style];
+
     const content =
         typeof children === 'string' ? (
             <Text style={[styles.text, textStyle]}>{children}</Text>
@@ -12,12 +25,18 @@ export default function GradientButton({ onPress, style, textStyle, children, co
         );
 
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity
+            onPress={onPress}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={accessibilityLabel || 'Gradient button'}
+            accessibilityHint={accessibilityHint || 'Press to perform an action'}
+        >
             <LinearGradient
                 colors={colors || ['#7435FD', '#C381E7']}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
-                style={[styles.gradient, style]}
+                style={combinedStyle}
             >
                 {content}
             </LinearGradient>

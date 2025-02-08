@@ -12,12 +12,14 @@ export default function RadialBackground({ children }) {
                 height={height}
                 width={width}
                 style={{ position: 'absolute', top: 0, left: 0 }}
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
             >
                 <Defs>
                     <RadialGradient
                         id="grad"
-                        cx="0%"    // center of the gradient (X coordinate) is at the left
-                        cy="100%"  // center (Y coordinate) is at the bottom
+                        cx="0%"
+                        cy="100%"
                         rx="100%"
                         ry="100%"
                         fx="0%"
@@ -33,4 +35,3 @@ export default function RadialBackground({ children }) {
         </>
     );
 }
-
