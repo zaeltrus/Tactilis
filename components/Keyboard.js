@@ -1,4 +1,3 @@
-// components/Keyboard.js
 import React from 'react';
 import { View } from 'react-native';
 import BrailleKey from './BrailleKey';

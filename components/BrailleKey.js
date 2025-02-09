@@ -1,4 +1,3 @@
-// BrailleKey.js
 import React from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 import AppStyles from '../styles/AppStyles';
