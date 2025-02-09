@@ -1,4 +1,3 @@
-// AppStyles.js
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -260,9 +259,9 @@ export default StyleSheet.create({
         paddingVertical: 10,
     },
     spaceButton: {
-        backgroundColor: '#3A3A4A',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 23,
+        paddingVertical: 11,
         borderRadius: 10,
         marginHorizontal: 5,
     },

@@ -1,4 +1,3 @@
-// RadialBackground.js
 import React from 'react';
 import { Dimensions } from 'react-native';
 import Svg, { Defs, Rect, RadialGradient, Stop } from 'react-native-svg';
