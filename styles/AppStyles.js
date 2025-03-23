@@ -15,7 +15,7 @@ export default StyleSheet.create({
     // Content container for normal chat mode (chat area and input)
     contentContainer: {
         flex: 1,
-        paddingBottom: keySize * 5.5, // Reserve space for the keyboard
+        paddingBottom: 230, // Reserve space for the keyboard
     },
     // Header for normal chat mode
     header: {
@@ -59,11 +59,8 @@ export default StyleSheet.create({
         color: '#FFFFFF',
     },
     inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        // Updated to accommodate two rows (playback row + input row)
         padding: 5,
-        borderTopWidth: 0.5,
-        borderColor: '#3A3A4A',
         backgroundColor: '#2E2E3A',
     },
     input: {
@@ -91,16 +88,10 @@ export default StyleSheet.create({
     },
     // Keyboard container positioned absolutely at the bottom.
     keyboard: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         backgroundColor: '#2E2E3A',
         borderTopWidth: 1,
         borderColor: '#3A3A4A',
         paddingVertical: 4,
-        zIndex: 10,
-        elevation: 10,
     },
     // Row style for keyboard keys (using space-around for even gaps)
     row: {
@@ -122,9 +113,10 @@ export default StyleSheet.create({
         marginHorizontal: 2,
     },
     keyText: {
-        fontSize: 28,
+        fontSize: 35,
         color: '#FFFFFF',
         textAlign: 'center',
+        lineHeight: keySize,
     },
     specialKeyText: {
         fontSize: 20,
@@ -278,5 +270,86 @@ export default StyleSheet.create({
         color: '#FFF',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    // -------------------- New Styles for Playback and Input Rows --------------------
+    playbackRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    playbackButton: {
+        padding: 8,
+        marginHorizontal: 4,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    inputField: {
+        flex: 1,
+        marginRight: 8,
+    },
+
+    // -------------------- Mini Mode Styles --------------------
+    mini: {
+        container: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            minHeight: 265,
+            backgroundColor: '#2E2E3A',
+            padding: 5,
+        },
+        topArea: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 5,
+        },
+        previewSquare: {
+            width: 100,
+            height: 100,
+            borderWidth: 2,
+            borderColor: '#7435FD',
+            backgroundColor: '#27293D',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 10,
+        },
+        previewText: {
+            fontSize: 18,
+            color: '#C381E7',
+        },
+        gridContainer: {
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'center', // brings columns closer together
+            alignItems: 'center',
+        },
+        column: {
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginHorizontal: 5, // smaller margin between columns
+        },
+        dot: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            margin: 5,
+            backgroundColor: '#27293D',
+            borderWidth: 3,
+            borderColor: '#7435FD',
+        },
+        buttonRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+        },
+        controlButton: {
+            paddingVertical: 12,  // slightly smaller than before
+            paddingHorizontal: 20,
+            borderRadius: 20,
+        },
     },
 });
