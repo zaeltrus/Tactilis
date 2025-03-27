@@ -25,7 +25,7 @@ export default function Keyboard({
         borderColor: '#FFFF00',
         borderWidth: 1,
     };
-    const keyTextOverrideStyle = { color: '#FFFF00', fontWeight: 'bold' };
+    const keyTextOverrideStyle = { color: '#FFFF00', fontWeight: 'bold', fontSize: 30, textAlign: 'center' };
 
     return (
         <View style={[AppStyles.keyboard, isHighContrast && { backgroundColor: '#333333' }]}>
@@ -44,8 +44,8 @@ export default function Keyboard({
                     />
                 ))}
             </View>
-            {/* Row 2 */}
-            <View style={[AppStyles.row, AppStyles.rowOffsetHalf]}>
+            {/* Row 2 centered */}
+            <View style={[AppStyles.row, { justifyContent: 'center' }]}>
                 {secondRowKeys.map((key, index) => (
                     <BrailleKey
                         key={`second-${index}`}
@@ -59,8 +59,8 @@ export default function Keyboard({
                     />
                 ))}
             </View>
-            {/* Row 3: Shift key, then letters, then Delete */}
-            <View style={[AppStyles.row, AppStyles.rowOffsetHalf]}>
+            {/* Row 3 centered */}
+            <View style={[AppStyles.row, { justifyContent: 'center' }]}>
                 <BrailleKey
                     label={shiftKey}
                     dual={dualLayout}
@@ -86,13 +86,12 @@ export default function Keyboard({
                     label="⌫"
                     dual={dualLayout}
                     onPress={onDelete}
-                    style={isHighContrast ? keyOverrideStyle : {}}
-                    textStyle={isHighContrast ? keyTextOverrideStyle : {}}
+                    style={isHighContrast ? { backgroundColor: '#E74C3C', borderColor: '#E74C3C', borderWidth: 1 } : {}}
+                    textStyle={isHighContrast ? { color: '#000000', fontWeight: 'bold' } : {}}
                     accessibilityLabel="Delete"
                     accessibilityHint="Deletes the last character"
                 />
             </View>
-            {/* Bottom Toolbar removed */}
         </View>
     );
 }
