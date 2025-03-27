@@ -1,9 +1,7 @@
-// MiniBrailleKeyboard.js
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import GradientButton from './GradientButton';
 import { Ionicons } from '@expo/vector-icons';
-import AppStyles from '../styles/AppStyles';
 
 export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit, isHighContrast }) {
     const [selectedDots, setSelectedDots] = useState([]);
@@ -19,6 +17,7 @@ export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit
         '1356': 'Z',
     };
 
+    // When a dot is pressed, toggle its selection and update the preview.
     const handleDotPress = (dot) => {
         let newDots = [...selectedDots];
         if (newDots.includes(dot)) {
@@ -32,6 +31,7 @@ export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit
         setPreviewLetter(brailleMapping[keyCombo] || '');
     };
 
+    // Local handler for Accept: call onAccept with previewLetter, then clear selection.
     const handleAcceptPress = () => {
         if (previewLetter) {
             onAccept(previewLetter);
@@ -40,103 +40,138 @@ export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit
         }
     };
 
+    // Local handler for Delete: call onDelete, then clear selection.
     const handleDeletePress = () => {
         onDelete();
         setSelectedDots([]);
         setPreviewLetter('');
     };
 
+    // In high contrast mode, we use specific colors; otherwise (normal mode) let the button use its default gradient.
+    const backButtonColors = isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined;
+    const deleteButtonColors = isHighContrast ? ['#E74C3C', '#E74C3C'] : undefined;
+    const sendButtonColors = isHighContrast ? ['#007AFF', '#007AFF'] : undefined;
+    const acceptButtonColors = isHighContrast ? ['#27AE60', '#27AE60'] : undefined;
+
+    // Container background now matches the input area: "#2E2E3A" in normal mode, "#333333" in high contrast.
     return (
-        <View style={{ padding: 5, backgroundColor: '#2E2E3A' }}>
-            {/* Top: Preview Box and Control Buttons */}
-            <View style={{ flexDirection: 'row', marginBottom: 5 }}>
-                {/* Preview Box */}
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: isHighContrast ? '#FFFF00' : '#7435FD', backgroundColor: '#27293D', marginRight: 5, padding: 5 }}>
-                    <Text style={{ fontSize: 36, color: isHighContrast ? '#FFFF00' : '#C381E7' }}>{previewLetter}</Text>
+        <View style={{ padding: 5, backgroundColor: isHighContrast ? '#333333' : '#2E2E3A' }}>
+            {/* Top Row: Centered row with enlarged preview square and braille dots */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, justifyContent: 'center' }}>
+                {/* Preview Square enlarged to 135x135, centered */}
+                <View style={{
+                    width: 135,
+                    height: 135,
+                    borderWidth: 2,
+                    borderColor: isHighContrast ? '#FFFF00' : '#7435FD',
+                    backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginRight: 20,
+                }}>
+                    <Text style={{ fontSize: 40, color: isHighContrast ? '#FFFF00' : '#C381E7' }}>
+                        {previewLetter}
+                    </Text>
                 </View>
-                {/* Control Buttons */}
-                <View style={{ justifyContent: 'space-around', alignItems: 'center' }}>
-                    <GradientButton
-                        onPress={handleDeletePress}
-                        style={{ marginBottom: 5 }}
-                        accessibilityLabel="Delete"
-                        accessibilityHint="Clears the current mini Braille selection"
-                    >
-                        <Ionicons name="backspace-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                    </GradientButton>
-                    <GradientButton
-                        onPress={handleAcceptPress}
-                        style={{ marginBottom: 5 }}
-                        accessibilityLabel="Accept"
-                        accessibilityHint="Accepts the current mini Braille input"
-                    >
-                        <Ionicons name="checkmark-circle-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                    </GradientButton>
-                    <GradientButton
-                        onPress={onSend}
-                        style={{ marginBottom: 5 }}
-                        accessibilityLabel="Send"
-                        accessibilityHint="Sends the current message"
-                    >
-                        <Ionicons name="send-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                    </GradientButton>
-                    <GradientButton
-                        onPress={onExit}
-                        accessibilityLabel="Exit mini mode"
-                        accessibilityHint="Return to the default keyboard"
-                    >
-                        <Ionicons name="return-up-back-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                    </GradientButton>
+                {/* Braille Grid: Two columns of dots shifted slightly right */}
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'column', justifyContent: 'center', marginRight: 10 }}>
+                        {["1", "2", "3"].map(dot => (
+                            <TouchableOpacity
+                                key={`mini-dot-left-${dot}`}
+                                onPress={() => handleDotPress(dot)}
+                                style={[{
+                                    width: 50,
+                                    height: 50,
+                                    borderRadius: 25,
+                                    borderWidth: 3,
+                                    borderColor: isHighContrast ? '#FFFF00' : '#7435FD',
+                                    backgroundColor: '#555555',
+                                    margin: 5,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                },
+                                    // Additional style if selected
+                                    (selectedDots.includes(dot.toString())
+                                        ? (isHighContrast
+                                            ? { backgroundColor: '#FFFF00', borderColor: '#FFFF00', borderWidth: 1 }
+                                            : { backgroundColor: '#C381E7' })
+                                        : {})]}
+                                accessibilityLabel={`Mini Braille dot ${dot}`}
+                                accessibilityHint={`Toggles mini Braille dot ${dot}`}
+                            />
+                        ))}
+                    </View>
+                    <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                        {["4", "5", "6"].map(dot => (
+                            <TouchableOpacity
+                                key={`mini-dot-right-${dot}`}
+                                onPress={() => handleDotPress(dot)}
+                                style={[{
+                                    width: 50,
+                                    height: 50,
+                                    borderRadius: 25,
+                                    borderWidth: 3,
+                                    borderColor: isHighContrast ? '#FFFF00' : '#7435FD',
+                                    backgroundColor: '#555555',
+                                    margin: 5,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                },
+                                    (selectedDots.includes(dot.toString())
+                                        ? (isHighContrast
+                                            ? { backgroundColor: '#FFFF00', borderColor: '#FFFF00', borderWidth: 1 }
+                                            : { backgroundColor: '#C381E7' })
+                                        : {})]}
+                                accessibilityLabel={`Mini Braille dot ${dot}`}
+                                accessibilityHint={`Toggles mini Braille dot ${dot}`}
+                            />
+                        ))}
+                    </View>
                 </View>
             </View>
-            {/* Bottom: Mini Braille Grid arranged in 2 rows of 3 keys */}
-            <View style={{ flexDirection: 'column' }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    {["1", "2", "3"].map(dot => (
-                        <TouchableOpacity
-                            key={`mini-${dot}`}
-                            onPress={() => handleDotPress(dot)}
-                            style={{
-                                width: 50,
-                                height: 50,
-                                borderRadius: 25,
-                                borderWidth: 3,
-                                borderColor: '#7435FD',
-                                backgroundColor: '#000802',
-                                margin: 5,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}
-                            accessibilityLabel={`Mini Braille dot ${dot}`}
-                            accessibilityHint={`Toggles mini Braille dot ${dot}`}
-                        >
-                            <Text style={{ fontSize: 20, color: '#FFFFFF' }}>{dot}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    {["4", "5", "6"].map(dot => (
-                        <TouchableOpacity
-                            key={`mini-${dot}`}
-                            onPress={() => handleDotPress(dot)}
-                            style={{
-                                width: 50,
-                                height: 50,
-                                borderRadius: 25,
-                                borderWidth: 3,
-                                borderColor: '#7435FD',
-                                backgroundColor: '#000802',
-                                margin: 5,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}
-                            accessibilityLabel={`Mini Braille dot ${dot}`}
-                            accessibilityHint={`Toggles mini Braille dot ${dot}`}
-                        >
-                            <Text style={{ fontSize: 20, color: '#FFFFFF' }}>{dot}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
+            {/* Bottom Row: Control Buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                <GradientButton
+                    onPress={onExit}
+                    style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
+                    noPadding={true}
+                    accessibilityLabel="Back"
+                    accessibilityHint="Return to the default Braille keyboard"
+                    colors={backButtonColors}
+                >
+                    <Ionicons name="return-up-back-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                </GradientButton>
+                <GradientButton
+                    onPress={handleDeletePress}
+                    style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
+                    noPadding={true}
+                    accessibilityLabel="Delete"
+                    accessibilityHint="Clears the current Braille selection"
+                    colors={deleteButtonColors}
+                >
+                    <Ionicons name="backspace-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                </GradientButton>
+                <GradientButton
+                    onPress={onSend}
+                    style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
+                    noPadding={true}
+                    accessibilityLabel="Send"
+                    accessibilityHint="Sends the current message"
+                    colors={sendButtonColors}
+                >
+                    <Ionicons name="send-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                </GradientButton>
+                <GradientButton
+                    onPress={handleAcceptPress}
+                    style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
+                    noPadding={true}
+                    accessibilityLabel="Accept"
+                    accessibilityHint="Accepts the current Braille input"
+                    colors={acceptButtonColors}
+                >
+                    <Ionicons name="checkmark-circle-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                </GradientButton>
             </View>
         </View>
     );

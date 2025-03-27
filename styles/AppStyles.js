@@ -73,6 +73,7 @@ export default StyleSheet.create({
         fontSize: 16,
     },
     sendButton: {
+        height: 40,
         paddingHorizontal: 15,
         paddingVertical: 8,
         backgroundColor: '#5B67FF',
@@ -289,6 +290,15 @@ export default StyleSheet.create({
     inputField: {
         flex: 1,
         marginRight: 8,
+    },
+
+    circleButton: {
+        width: 35,      // Adjust size as needed
+        height: 35,
+        borderRadius: 25, // Half of width/height for a perfect circle
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 4, // Optional spacing between buttons
     },
 
     // -------------------- Mini Mode Styles --------------------

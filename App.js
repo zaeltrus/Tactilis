@@ -20,7 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AppStyles from './styles/AppStyles';
 import Keyboard from './components/Keyboard';
 import NumericKeyboard from './components/NumericKeyboard';
-// Removed MiniBrailleKeyboard import because it doesn't exist
+import MiniBrailleKeyboard from './components/MiniBrailleKeyboard';
 import RadialBackground from './components/RadialBackground';
 import GradientButton from './components/GradientButton';
 import BrailleKey from './components/BrailleKey';
@@ -40,9 +40,6 @@ export default function App() {
 
     const [hapticFeedbackEnabled, setHapticFeedbackEnabled] = useState(true);
     const toggleHapticFeedback = () => setHapticFeedbackEnabled(prev => !prev);
-
-    // Append a space (for Braille mode)
-    const handleSpace = () => setFinalText(prev => prev + ' ');
 
     // ==================== Keyboard Mode State ====================
     // Modes: "default" (full keyboard), "numeric", and "mini" (mini Braille)
@@ -164,7 +161,7 @@ export default function App() {
     };
     const handleMicPress = () => {};
 
-    // ==================== Braille Mode Functions ====================
+    // ==================== Braille Mode Functions (Full Screen) ====================
     const handleDotPress = (dot) => {
         let newDots = [...selectedDots];
         if (newDots.includes(dot)) {
@@ -200,23 +197,7 @@ export default function App() {
         }
     };
 
-    const handleMiniAccept = (letter) => {
-        setMessage(prev => prev + letter);
-    };
-
-    // -------------------- Mini Mode Dot Styling --------------------
-    // Define a mini dot style (40x40) with a default background similar to full-screen mode.
-    const miniDotStyle = {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        margin: 5,
-        backgroundColor: '#27293D',
-        borderWidth: 3,
-        borderColor: '#7435FD',
-    };
-
-    // getDotStyle returns selection overrides (merges with miniDotStyle)
+    // -------------------- getDotStyle for Full Screen Braille Mode --------------------
     const getDotStyle = (dot) => {
         const isSelected = selectedDots.includes(dot.toString());
         if (isHighContrast) {
@@ -281,34 +262,35 @@ export default function App() {
                         inverted
                     />
                 </View>
-                {/* Playback and Input Controls */}
+                {/* Chat Input Area */}
                 <View style={[
                     AppStyles.inputContainer,
                     isHighContrast && { backgroundColor: '#333333' }
                 ]}>
-                    <View style={AppStyles.playbackRow}>
-                        <TouchableOpacity
+                    <View style={AppStyles.inputRow}>
+                        {/* Playback Buttons on the left */}
+                        <GradientButton
                             onPress={() => playMorseForText(message)}
-                            style={AppStyles.playbackButton}
-                            accessible={true}
-                            accessibilityRole="button"
+                            style={[AppStyles.circleButton, { marginLeft: 4 }]}
+                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : ['#7435FD', '#C381E7']}
+                            noPadding={true}
                             accessibilityLabel="Play Morse code preview"
                             accessibilityHint="Plays the current message in Morse code"
                         >
                             <Ionicons name="flash-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                        </GradientButton>
+                        <GradientButton
                             onPress={() => speakPreview(message)}
-                            style={AppStyles.playbackButton}
-                            accessible={true}
-                            accessibilityRole="button"
+                            style={[AppStyles.circleButton, { marginLeft: 4 }]}
+                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : ['#7435FD', '#C381E7']}
+                            noPadding={true}
                             accessibilityLabel="Speak message preview"
                             accessibilityHint="Reads the current message using text-to-speech"
                         >
                             <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={AppStyles.inputRow}>
+                        </GradientButton>
+
+                        {/* The TextInput */}
                         <TextInput
                             style={[
                                 AppStyles.input,
@@ -324,302 +306,215 @@ export default function App() {
                             accessibilityLabel="Message input"
                             accessibilityHint="Type your message here"
                         />
+
+                        {/* The Send Button */}
                         <GradientButton
                             onPress={handleSend}
                             style={[AppStyles.sendButton, isHighContrast && { backgroundColor: '#FFFF00' }]}
                             colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                            textStyle={isHighContrast ? { color: '#000000' } : undefined}
                             noPadding={true}
                             accessibilityLabel="Send message"
                             accessibilityHint="Sends your message"
                         >
-                            <Text style={{ color: isHighContrast ? '#000000' : '#FFFFFF' }}>Send</Text>
+                            <Ionicons name="send-outline" size={20} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                         </GradientButton>
                     </View>
                 </View>
             </View>
             {/* Keyboard Branch */}
-            {keyboardMode === 'default' ? (
-                // Default Keyboard Mode: Full letter keys, extra row, and toolbar.
-                <View
-                    style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        minHeight: 265,
-                        backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
-                    }}
-                >
-                    <View style={{ borderTopWidth: 1, borderColor: '#3A3A4A' }}>
-                        <Keyboard
-                            onKeyPress={handleKeyPress}
-                            onDelete={handleDelete}
-                            onBrailleInput={handleBrailleInputToggle}
-                            onKeyboardSelect={handleKeyboardSelect}
-                            onMicPress={handleMicPress}
-                            onThemeToggle={toggleHighContrast}
-                            isHighContrast={isHighContrast}
-                            dualLayout={isDualLayout}
-                            onMiniToggle={toggleMiniBraille}
-                            onEmoji={handleEmoji}
-                            onNumbers={toggleNumericKeyboard}
-                        />
-                    </View>
-                    <View style={[AppStyles.row, { justifyContent: 'space-around', marginTop: 5 }]}>
-                        <BrailleKey
-                            label={'⠼'}
-                            dual={isDualLayout}
-                            onPress={toggleNumericKeyboard}
-                            style={[
-                                AppStyles.key,
-                                isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
-                            ]}
-                            textStyle={
-                                isHighContrast
-                                    ? { color: '#000000', fontWeight: 'bold' }
-                                    : AppStyles.specialKeyText
-                            }
-                            accessibilityLabel="Numeric keyboard"
-                            accessibilityHint="Switch to numeric keyboard layout"
-                        />
-                        <BrailleKey
-                            label={'😊'}
-                            dual={isDualLayout}
-                            onPress={handleEmoji}
-                            style={[
-                                AppStyles.key,
-                                isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
-                            ]}
-                            textStyle={
-                                isHighContrast
-                                    ? { color: '#000000', fontWeight: 'bold' }
-                                    : AppStyles.specialKeyText
-                            }
-                            accessibilityLabel="Emoji keyboard"
-                            accessibilityHint="Switch to emoji input mode"
-                        />
-                        <BrailleKey
-                            label={'Space'}
-                            dual={isDualLayout}
-                            onPress={() => handleKeyPress(' ')}
-                            style={[
-                                AppStyles.spacebar,
-                                { justifyContent: 'center', alignItems: 'center' },
-                                isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
-                            ]}
-                            textStyle={
-                                isHighContrast
-                                    ? { color: '#000000', fontWeight: 'bold' }
-                                    : AppStyles.specialKeyText
-                            }
-                            accessibilityLabel="Space"
-                            accessibilityHint="Insert a space"
-                        />
-                        <BrailleKey
-                            label={'Enter'}
-                            dual={isDualLayout}
-                            onPress={handleEnter}
-                            style={[
-                                AppStyles.enterKey,
-                                { justifyContent: 'center', alignItems: 'center' },
-                                isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
-                            ]}
-                            textStyle={
-                                isHighContrast
-                                    ? { color: '#000000', fontWeight: 'bold' }
-                                    : AppStyles.specialKeyText
-                            }
-                            accessibilityLabel="Enter"
-                            accessibilityHint="Submit your input"
-                        />
-                    </View>
-                    <View style={AppStyles.bottomRow}>
-                        <GradientButton
-                            onPress={handleKeyboardSelect}
-                            style={[AppStyles.extraButton, { padding: 0 }]}
-                            noPadding={true}
-                            accessibilityLabel="Toggle dual layout"
-                            accessibilityHint="Switch between braille-only and braille+Latin layout"
-                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                        >
-                            <Ionicons name="globe-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={toggleHighContrast}
-                            style={[AppStyles.extraButton, { padding: 0 }]}
-                            noPadding={true}
-                            accessibilityLabel="Toggle high contrast mode"
-                            accessibilityHint="Switch high contrast mode on or off"
-                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                        >
-                            <Ionicons name="invert-mode-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={handleMicPress}
-                            style={[AppStyles.extraButton, { padding: 0 }]}
-                            noPadding={true}
-                            accessibilityLabel="Microphone"
-                            accessibilityHint="Activate voice input"
-                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                        >
-                            <Ionicons name="mic-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={handleBrailleInputToggle}
-                            style={[AppStyles.extraButton, { padding: 0 }]}
-                            noPadding={true}
-                            accessibilityLabel="Full screen Braille input"
-                            accessibilityHint="Activate full screen Braille input mode"
-                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                        >
-                            <Ionicons name="finger-print-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={toggleMiniBraille}
-                            style={[AppStyles.extraButton, { padding: 0 }]}
-                            noPadding={true}
-                            accessibilityLabel="Mini Braille keyboard"
-                            accessibilityHint="Switch to mini Braille keyboard mode"
-                            colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
-                        >
-                            <Ionicons name="grid-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                    </View>
-                </View>
-            ) : keyboardMode === 'numeric' ? (
-                <View
-                    style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        minHeight: 265,
-                        backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
-                    }}
-                >
-                    <NumericKeyboard
-                        onKeyPress={handleKeyPress}
-                        onExit={() => setKeyboardMode('default')}
-                        isHighContrast={isHighContrast}
-                    />
-                </View>
-            ) : (
-                // Mini Mode: Custom inline layout.
-                <View
-                    style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        minHeight: 265,
-                        backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
-                        padding: 5,
-                    }}
-                >
-                    {/* Top Area: Latin Preview and Braille Grid */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
-                        {/* Latin Preview Square (smaller) */}
-                        <View
-                            style={{
-                                width: 100,
-                                height: 100,
-                                borderWidth: 2,
-                                borderColor: isHighContrast ? '#FFFF00' : '#7435FD',
-                                backgroundColor: '#27293D',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                marginRight: 5,
-                            }}
-                        >
-                            <Text style={{ fontSize: 18, color: isHighContrast ? '#FFFF00' : '#C381E7' }}>
-                                {previewLetter}
-                            </Text>
+            <View style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 265,
+                backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
+            }}>
+                {keyboardMode === 'default' ? (
+                    <>
+                        <View style={{ borderTopWidth: 1, borderColor: '#3A3A4A' }}>
+                            <Keyboard
+                                onKeyPress={handleKeyPress}
+                                onDelete={handleDelete}
+                                onBrailleInput={handleBrailleInputToggle}
+                                onKeyboardSelect={handleKeyboardSelect}
+                                onMicPress={handleMicPress}
+                                onThemeToggle={toggleHighContrast}
+                                isHighContrast={isHighContrast}
+                                dualLayout={isDualLayout}
+                                onMiniToggle={toggleMiniBraille}
+                                onEmoji={handleEmoji}
+                                onNumbers={toggleNumericKeyboard}
+                            />
                         </View>
-                        {/* Braille Grid: Two columns (dots 1-3, dots 4-6) */}
-                        <View
-                            style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                justifyContent: 'space-evenly',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <View style={{ flexDirection: 'column', justifyContent: 'space-evenly' }}>
-                                {[1, 2, 3].map(dot => (
-                                    <TouchableOpacity
-                                        key={`mini-dot-left-${dot}`}
-                                        style={[miniDotStyle, getDotStyle(dot)]}
-                                        onPress={() => handleDotPress(dot.toString())}
-                                        accessible={true}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Mini Braille dot ${dot}`}
-                                        accessibilityHint={`Toggles mini Braille dot ${dot}`}
-                                    />
-                                ))}
-                            </View>
-                            <View style={{ flexDirection: 'column', justifyContent: 'space-evenly' }}>
-                                {[4, 5, 6].map(dot => (
-                                    <TouchableOpacity
-                                        key={`mini-dot-right-${dot}`}
-                                        style={[miniDotStyle, getDotStyle(dot)]}
-                                        onPress={() => handleDotPress(dot.toString())}
-                                        accessible={true}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={`Mini Braille dot ${dot}`}
-                                        accessibilityHint={`Toggles mini Braille dot ${dot}`}
-                                    />
-                                ))}
-                            </View>
+                        <View style={[AppStyles.row, { justifyContent: 'center', marginTop: 0, marginBottom: 4 }]}>
+                            <BrailleKey
+                                label={'⠼'}
+                                dual={isDualLayout}
+                                onPress={toggleNumericKeyboard}
+                                style={[
+                                    AppStyles.key,
+                                    { marginHorizontal: 5 },
+                                    isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
+                                ]}
+                                textStyle={
+                                    isHighContrast
+                                        ? { color: '#000000', fontWeight: 'bold' }
+                                        : AppStyles.specialKeyText
+                                }
+                                accessibilityLabel="Numeric keyboard"
+                                accessibilityHint="Switch to numeric keyboard layout"
+                            />
+                            <BrailleKey
+                                label={'😊'}
+                                dual={isDualLayout}
+                                onPress={handleEmoji}
+                                style={[
+                                    AppStyles.key,
+                                    { marginHorizontal: 2 },
+                                    isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
+                                ]}
+                                textStyle={
+                                    isHighContrast
+                                        ? { color: '#000000', fontWeight: 'bold' }
+                                        : AppStyles.specialKeyText
+                                }
+                                accessibilityLabel="Emoji keyboard"
+                                accessibilityHint="Switch to emoji input mode"
+                            />
+                            <BrailleKey
+                                label={'Space'}
+                                dual={isDualLayout}
+                                onPress={() => handleKeyPress(' ')}
+                                style={[
+                                    AppStyles.spacebar,
+                                    { justifyContent: 'center', alignItems: 'center', marginHorizontal: 5 },
+                                    isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
+                                ]}
+                                textStyle={
+                                    isHighContrast
+                                        ? { color: '#000000', fontWeight: 'bold' }
+                                        : AppStyles.specialKeyText
+                                }
+                                accessibilityLabel="Space"
+                                accessibilityHint="Insert a space"
+                            />
+                            <BrailleKey
+                                label={'Enter'}
+                                dual={isDualLayout}
+                                onPress={handleEnter}
+                                style={[
+                                    AppStyles.enterKey,
+                                    { justifyContent: 'center', alignItems: 'center', marginHorizontal: 5 },
+                                    isHighContrast && { backgroundColor: '#FFFF00', borderColor: '#000000' },
+                                ]}
+                                textStyle={
+                                    isHighContrast
+                                        ? { color: '#000000', fontWeight: 'bold' }
+                                        : AppStyles.specialKeyText
+                                }
+                                accessibilityLabel="Enter"
+                                accessibilityHint="Submit your input"
+                            />
                         </View>
-                    </View>
-                    {/* Bottom Area: Control Buttons (ordered left-to-right: Back, Delete, Send, Accept) */}
+                        <View style={[AppStyles.bottomRow]}>
+                            <GradientButton
+                                onPress={handleKeyboardSelect}
+                                style={[AppStyles.extraButton, { padding: 0 }]}
+                                noPadding={true}
+                                accessibilityLabel="Toggle dual layout"
+                                accessibilityHint="Switch between braille-only and braille+Latin layout"
+                                colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
+                            >
+                                <Ionicons name="globe-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                            </GradientButton>
+                            <GradientButton
+                                onPress={toggleHighContrast}
+                                style={[AppStyles.extraButton, { padding: 0 }]}
+                                noPadding={true}
+                                accessibilityLabel="Toggle high contrast mode"
+                                accessibilityHint="Switch high contrast mode on or off"
+                                colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
+                            >
+                                <Ionicons name="invert-mode-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                            </GradientButton>
+                            <GradientButton
+                                onPress={handleMicPress}
+                                style={[AppStyles.extraButton, { padding: 0 }]}
+                                noPadding={true}
+                                accessibilityLabel="Microphone"
+                                accessibilityHint="Activate voice input"
+                                colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
+                            >
+                                <Ionicons name="mic-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                            </GradientButton>
+                            <GradientButton
+                                onPress={handleBrailleInputToggle}
+                                style={[AppStyles.extraButton, { padding: 0 }]}
+                                noPadding={true}
+                                accessibilityLabel="Full screen Braille input"
+                                accessibilityHint="Activate full screen Braille input mode"
+                                colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
+                            >
+                                <Ionicons name="finger-print-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                            </GradientButton>
+                            <GradientButton
+                                onPress={toggleMiniBraille}
+                                style={[AppStyles.extraButton, { padding: 0 }]}
+                                noPadding={true}
+                                accessibilityLabel="Mini Braille keyboard"
+                                accessibilityHint="Switch to mini Braille keyboard mode"
+                                colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
+                            >
+                                <Ionicons name="grid-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                            </GradientButton>
+                        </View>
+                    </>
+                ) : keyboardMode === 'numeric' ? (
                     <View
                         style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-evenly',
-                            alignItems: 'center',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 265,
+                            backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
                         }}
                     >
-                        <GradientButton
-                            onPress={() => setKeyboardMode('default')}
-                            style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
-                            noPadding={true}
-                            accessibilityLabel="Back"
-                            accessibilityHint="Return to the default Braille keyboard"
-                        >
-                            <Ionicons name="return-up-back-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={handleBrailleDelete}
-                            style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
-                            noPadding={true}
-                            accessibilityLabel="Delete"
-                            accessibilityHint="Clears the current mini Braille selection"
-                        >
-                            <Ionicons name="backspace-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={handleBrailleSend}
-                            style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
-                            noPadding={true}
-                            accessibilityLabel="Send"
-                            accessibilityHint="Sends the current message"
-                        >
-                            <Ionicons name="send-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
-                        <GradientButton
-                            onPress={handleAccept}
-                            style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
-                            noPadding={true}
-                            accessibilityLabel="Accept"
-                            accessibilityHint="Accepts the current mini Braille input"
-                        >
-                            <Ionicons name="checkmark-circle-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
-                        </GradientButton>
+                        <NumericKeyboard
+                            onKeyPress={handleKeyPress}
+                            onExit={() => setKeyboardMode('default')}
+                            isHighContrast={isHighContrast}
+                        />
                     </View>
-                </View>
-            )}
+                ) : (
+                    // Mini Mode: Use imported MiniBrailleKeyboard component
+                    <View
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 265,
+                            backgroundColor: isHighContrast ? '#333333' : '#2E2E3A',
+                        }}
+                    >
+                        <MiniBrailleKeyboard
+                            onAccept={(letter) => setMessage(prev => prev + letter)}
+                            onDelete={() => setMessage(prev => prev.slice(0, -1))}
+                            onSend={() => {
+                                if (message.trim()) {
+                                    const newMsg = { id: Date.now().toString(), text: message, sent: true };
+                                    setChatMessages([newMsg, ...chatMessages]);
+                                    setMessage('');
+                                }
+                            }}
+                            onExit={toggleMiniBraille}
+                            isHighContrast={isHighContrast}
+                        />
+                    </View>
+                )}
+            </View>
         </>
     );
 
@@ -629,62 +524,25 @@ export default function App() {
             <View
                 style={{
                     flexDirection: 'row',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center', // Centered
                     alignItems: 'center',
                     paddingHorizontal: 10,
                     backgroundColor: 'transparent',
                 }}
             >
-                <TouchableOpacity
-                    onPress={handleBrailleInputToggle}
-                    style={{ padding: 10 }}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel="Back"
-                    accessibilityHint="Return to chat mode"
-                >
-                    <Ionicons name="arrow-back-outline" size={28} color={isHighContrast ? '#FFFF00' : '#FFFFFF'} />
-                </TouchableOpacity>
-                {(() => {
-                    let hapticButtonStyle, hapticButtonColors, hapticButtonTextStyle;
-                    if (isHighContrast) {
-                        if (hapticFeedbackEnabled) {
-                            hapticButtonStyle = { paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10 };
-                            hapticButtonColors = ['#FFFF00', '#FFFF00'];
-                            hapticButtonTextStyle = { color: '#000000', fontSize: 16, fontWeight: 'bold' };
-                        } else {
-                            hapticButtonStyle = { paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10, borderWidth: 1, borderColor: '#FFFF00' };
-                            hapticButtonColors = ['transparent', 'transparent'];
-                            hapticButtonTextStyle = { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' };
-                        }
-                    } else {
-                        if (hapticFeedbackEnabled) {
-                            hapticButtonStyle = { paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10 };
-                            hapticButtonColors = ['#7435FD', '#C381E7'];
-                            hapticButtonTextStyle = { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' };
-                        } else {
-                            hapticButtonStyle = { paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10, borderWidth: 1, borderColor: '#7435FD' };
-                            hapticButtonColors = ['transparent', 'transparent'];
-                            hapticButtonTextStyle = { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' };
-                        }
-                    }
-                    return (
-                        <View style={{ flex: 1, alignItems: 'center' }}>
-                            <GradientButton
-                                onPress={toggleHapticFeedback}
-                                style={hapticButtonStyle}
-                                colors={hapticButtonColors}
-                                textStyle={hapticButtonTextStyle}
-                                noPadding={true}
-                                accessibilityLabel="Toggle haptic feedback"
-                                accessibilityHint="Switch haptic feedback on or off"
-                            >
-                                {hapticFeedbackEnabled ? 'Haptic mode: On' : 'Haptic mode: Off'}
-                            </GradientButton>
-                        </View>
-                    );
-                })()}
-                <View style={{ width: 40 }} />
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                    <GradientButton
+                        onPress={toggleHapticFeedback}
+                        style={{ paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10 }}
+                        colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : hapticFeedbackEnabled ? ['#7435FD', '#C381E7'] : ['transparent', 'transparent']}
+                        textStyle={isHighContrast ? { color: '#000000', fontSize: 16, fontWeight: 'bold' } : { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}
+                        noPadding={true}
+                        accessibilityLabel="Toggle haptic feedback"
+                        accessibilityHint="Switch haptic feedback on or off"
+                    >
+                        {hapticFeedbackEnabled ? 'Haptic mode: On' : 'Haptic mode: Off'}
+                    </GradientButton>
+                </View>
             </View>
             <View style={AppStyles.brailleContent}>
                 <View style={AppStyles.brailleGrid}>
@@ -730,16 +588,16 @@ export default function App() {
                             {previewLetter}
                         </Text>
                     </View>
-                    <TouchableOpacity
+                    <GradientButton
                         onPress={() => { if (previewLetter && previewLetter !== '?') Speech.speak(previewLetter); }}
-                        style={{ marginLeft: 10 }}
-                        accessible={true}
-                        accessibilityRole="button"
+                        style={[AppStyles.circleButton, { marginLeft: 4 }]}
+                        colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : ['#7435FD', '#C381E7']}
+                        noPadding={true}
                         accessibilityLabel="Speak preview letter"
                         accessibilityHint="Plays the preview letter using text-to-speech"
                     >
-                        <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#FFFF00' : '#FFFFFF'} />
-                    </TouchableOpacity>
+                        <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                    </GradientButton>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', margin: 10 }}>
                     <View
@@ -756,25 +614,26 @@ export default function App() {
                             {finalText}
                         </Text>
                     </View>
-                    <TouchableOpacity
+                    <GradientButton
                         onPress={() => { if (finalText && finalText.trim() !== '') Speech.speak(finalText); }}
-                        style={{ marginLeft: 10 }}
-                        accessible={true}
-                        accessibilityRole="button"
+                        style={[AppStyles.circleButton, { marginLeft: 4 }]}
+                        colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : ['#7435FD', '#C381E7']}
+                        noPadding={true}
                         accessibilityLabel="Speak final text"
                         accessibilityHint="Plays the final text using text-to-speech"
                     >
-                        <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#FFFF00' : '#FFFFFF'} />
-                    </TouchableOpacity>
+                        <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
+                    </GradientButton>
                 </View>
             </View>
-            <View style={AppStyles.bottomButtonsContainer}>
+            <View style={[AppStyles.bottomButtonsContainer, { marginTop: 20, marginBottom: 30 }]}>
                 <GradientButton
-                    onPress={() => setKeyboardMode('default')}
+                    onPress={() => setIsBrailleMode(false)}
                     style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
                     noPadding={true}
                     accessibilityLabel="Back"
                     accessibilityHint="Return to the default Braille keyboard"
+                    colors={isHighContrast ? ['#FFFF00', '#FFFF00'] : undefined}
                 >
                     <Ionicons name="return-up-back-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                 </GradientButton>
@@ -783,7 +642,8 @@ export default function App() {
                     style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
                     noPadding={true}
                     accessibilityLabel="Delete"
-                    accessibilityHint="Clears the current mini Braille selection"
+                    accessibilityHint="Clears the current Braille selection"
+                    colors={isHighContrast ? ['#E74C3C', '#E74C3C'] : undefined}
                 >
                     <Ionicons name="backspace-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                 </GradientButton>
@@ -793,6 +653,7 @@ export default function App() {
                     noPadding={true}
                     accessibilityLabel="Send"
                     accessibilityHint="Sends the current message"
+                    colors={isHighContrast ? ['#007AFF', '#007AFF'] : undefined}
                 >
                     <Ionicons name="send-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                 </GradientButton>
@@ -801,7 +662,8 @@ export default function App() {
                     style={{ paddingVertical: 15, paddingHorizontal: 25, borderRadius: 25 }}
                     noPadding={true}
                     accessibilityLabel="Accept"
-                    accessibilityHint="Accepts the current mini Braille input"
+                    accessibilityHint="Accepts the current Braille input"
+                    colors={isHighContrast ? ['#27AE60', '#27AE60'] : undefined}
                 >
                     <Ionicons name="checkmark-circle-outline" size={30} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                 </GradientButton>
@@ -809,7 +671,6 @@ export default function App() {
         </SafeAreaView>
     );
 
-    // ==================== Main Render ====================
     return (
         <>
             <StatusBar

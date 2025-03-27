@@ -2,7 +2,16 @@ import React, { useState, useRef } from 'react';
 import { View, Text, Animated, PanResponder } from 'react-native';
 import AppStyles from '../styles/AppStyles';
 
-export default function BrailleKey({ label, onPress, style, textStyle, dual, accessibilityLabel, accessibilityHint }) {
+export default function BrailleKey({
+                                       label,
+                                       onPress,
+                                       style,
+                                       textStyle,
+                                       dual,
+                                       isHighContrast,
+                                       accessibilityLabel,
+                                       accessibilityHint,
+                                   }) {
     const [enlarged, setEnlarged] = useState(false);
     const scaleValue = useRef(new Animated.Value(1)).current;
     const longPressTimeout = useRef(null);
@@ -39,7 +48,6 @@ export default function BrailleKey({ label, onPress, style, textStyle, dual, acc
                     if (enlarged) {
                         setEnlarged(false);
                     }
-                    // If dual is enabled and the label is in our braille-to-Latin mapping, pass the Latin letter.
                     if (dual && dualMapping[label]) {
                         onPress(dualMapping[label]);
                     } else {
@@ -57,7 +65,6 @@ export default function BrailleKey({ label, onPress, style, textStyle, dual, acc
         })
     ).current;
 
-    // Mapping for dual layout: if the key's label is a braille symbol, get the Latin letter.
     const dualMapping = {
         '⠟': 'Q',
         '⠺': 'W',
@@ -87,23 +94,43 @@ export default function BrailleKey({ label, onPress, style, textStyle, dual, acc
         '⠍': 'M'
     };
 
-    // In dual mode, if the label is in dualMapping, render both pieces.
     const renderDualLabel = () => {
         if (dual && dualMapping[label]) {
+            // For dual mode, always use the normal layout so that the braille dot remains small.
+            // When in high contrast mode, reduce the dot size.
+            const brailleFontSize = isHighContrast ? 28 : 28;
+            const brailleLineHeight = isHighContrast ? 28 : 28;
             return (
-                <View style={{ flex: 1 }}>
-                    <View style={{ position: 'absolute', top: 4, left: 4 }}>
-                        <Text style={{ fontSize: 35, color: textStyle?.color || '#FFFFFF' }}>{label}</Text>
-                    </View>
-                    <View style={{ position: 'absolute', bottom: 2, right: 2 }}>
-                        <Text style={{ fontSize: 18, color: textStyle?.color || '#FFFFFF' }}>{dualMapping[label]}</Text>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text
+                        style={[
+                            {
+                                fontSize: brailleFontSize, // reduced size in high contrast mode
+                                color: textStyle?.color || '#FFFFFF',
+                                textAlign: 'center',
+                                lineHeight: brailleLineHeight,
+                            },
+                            textStyle || {}
+                        ]}
+                    >
+                        {label}
+                    </Text>
+                    <View style={{ position: 'absolute', bottom: 4, right: 4 }}>
+                        <Text style={{ fontSize: 16, color: textStyle?.color || '#FFFFFF' }}>
+                            {dualMapping[label]}
+                        </Text>
                     </View>
                 </View>
             );
         } else {
+            // For non-dual keys, center the label.
+            const brailleFontSize = isHighContrast ? 28 : (textStyle && textStyle.fontSize) || AppStyles.keyText.fontSize || 35;
+            const brailleLineHeight = isHighContrast ? 28 : brailleFontSize;
             return (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={[AppStyles.keyText, { transform: [{ translateY: 3 }] } ,textStyle]}>{label}</Text>
+                    <Text style={[{ fontSize: brailleFontSize, lineHeight: brailleLineHeight, textAlign: 'center' }, AppStyles.keyText, textStyle || {}]}>
+                        {label}
+                    </Text>
                 </View>
             );
         }
