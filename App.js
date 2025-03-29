@@ -86,18 +86,21 @@ export default function App() {
         text.split('').map(char => brailleToLatin[char] || char).join('');
 
     // ==================== Haptic Feedback Functions ====================
+
+    // Plays Morse code vibration for a single letter
     const playMorse = (letter) => {
         const code = morseMapping[letter.toUpperCase()];
         if (!code) return;
         const dotDuration = 100, dashDuration = 300, gap = 100, extraDelay = 200;
         if (Platform.OS === 'android') {
-            let pattern = [0];
+            let pattern = [0]; // Initial pause
             for (let i = 0; i < code.length; i++) {
                 pattern.push(code[i] === '.' ? dotDuration : dashDuration);
-                if (i < code.length - 1) pattern.push(gap);
+                if (i < code.length - 1) pattern.push(gap); // add gap after each symbol except the last
             }
             Vibration.vibrate(pattern);
         } else {
+            // Recursive function to play Morse on iOS
             const playSymbol = async (index) => {
                 if (index >= code.length) return;
                 const symbol = code[index];
@@ -107,6 +110,7 @@ export default function App() {
                         symbol === '.' ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Heavy
                     );
                 }
+                // Add extra delay if two dots are sequential
                 if (symbol === '.' && index < code.length - 1 && code[index + 1] === '.') {
                     delay += extraDelay;
                 }
@@ -116,6 +120,7 @@ export default function App() {
         }
     };
 
+    // Plays Morse code vibrations sequentially for entire text
     const playMorseForText = (text) => {
         const convertedText = convertBrailleToLatin(text);
         let delay = 0;
@@ -132,6 +137,7 @@ export default function App() {
         }
     };
 
+    // Speaks out the text (for preview and final text)
     const speakPreview = (text) => {
         const convertedText = convertBrailleToLatin(text);
         if (convertedText && convertedText.trim() !== '') {
@@ -141,6 +147,8 @@ export default function App() {
     };
 
     // ==================== Chat Handlers ====================
+
+    // Sends current message and resets input field
     const handleSend = () => {
         if (message.trim()) {
             const newMsg = { id: Date.now().toString(), text: message, sent: true };
@@ -149,19 +157,32 @@ export default function App() {
         }
     };
 
+    // Adds pressed key to the current message
     const handleKeyPress = (key) => setMessage(prev => prev + key);
+
+    // Deletes the last character from the message
     const handleDelete = () => setMessage(prev => prev.slice(0, -1));
+
+    // Submits the current message
     const handleEnter = () => handleSend();
+
+    // Placeholder for emoji input (future implementation)
     const handleEmoji = () => {};
+
+    // Toggles full-screen Braille input mode
     const handleBrailleInputToggle = () => {
         setIsBrailleMode(prev => !prev);
         setSelectedDots([]);
         setPreviewLetter('');
         setFinalText('');
     };
+
+    // Placeholder for microphone input (future implementation)
     const handleMicPress = () => {};
 
     // ==================== Braille Mode Functions (Full Screen) ====================
+
+    // Manages dot selection/deselection and updates letter preview
     const handleDotPress = (dot) => {
         let newDots = [...selectedDots];
         if (newDots.includes(dot)) {
@@ -174,6 +195,7 @@ export default function App() {
         setPreviewLetter(brailleMapping[newDots.join('')] || '?');
     };
 
+    // Accepts currently previewed letter, adds to final text, triggers Morse feedback
     const handleAccept = () => {
         if (previewLetter && previewLetter !== '?') {
             setFinalText(prev => prev + previewLetter);
@@ -183,11 +205,13 @@ export default function App() {
         }
     };
 
+    // Clears Braille selection and preview letter
     const handleBrailleDelete = () => {
         setSelectedDots([]);
         setPreviewLetter('');
     };
 
+    // Sends accumulated final Braille text to chat
     const handleBrailleSend = () => {
         if (finalText.trim()) {
             const newMsg = { id: Date.now().toString(), text: finalText, sent: true };
@@ -197,7 +221,7 @@ export default function App() {
         }
     };
 
-    // -------------------- getDotStyle for Full Screen Braille Mode --------------------
+    // Returns dynamic style for Braille dots based on selection & contrast mode
     const getDotStyle = (dot) => {
         const isSelected = selectedDots.includes(dot.toString());
         if (isHighContrast) {
@@ -223,6 +247,8 @@ export default function App() {
     const normalContainerStyle = AppStyles.container;
 
     // ==================== Render Chat Mode ====================
+
+    // Renders the main chat interface (default, numeric, mini Braille keyboard modes)
     const renderChatMode = () => (
         <>
             {/* Chat Header */}
@@ -233,10 +259,10 @@ export default function App() {
                 accessibilityLabel="Chat Header"
             >
                 <Text style={[AppStyles.headerText, isHighContrast && { color: '#FFFF00' }]}>
-                    {/* Optional header text */}
+                    {/* Optional header title */}
                 </Text>
             </View>
-            {/* Chat Content */}
+            {/* Main chat messages area */}
             <View style={AppStyles.contentContainer}>
                 <View style={AppStyles.chatContainer}>
                     <FlatList
@@ -262,6 +288,7 @@ export default function App() {
                         inverted
                     />
                 </View>
+
                 {/* Chat Input Area */}
                 <View style={[
                     AppStyles.inputContainer,
@@ -290,7 +317,7 @@ export default function App() {
                             <Ionicons name="volume-high-outline" size={24} color={isHighContrast ? '#000000' : '#FFFFFF'} />
                         </GradientButton>
 
-                        {/* The TextInput */}
+                        {/* Text input field for composing messages */}
                         <TextInput
                             style={[
                                 AppStyles.input,
@@ -321,7 +348,8 @@ export default function App() {
                     </View>
                 </View>
             </View>
-            {/* Keyboard Branch */}
+
+            {/* Bottom keyboard area */}
             <View style={{
                 position: 'absolute',
                 bottom: 0,
@@ -484,6 +512,7 @@ export default function App() {
                         <NumericKeyboard
                             onKeyPress={handleKeyPress}
                             onExit={() => setKeyboardMode('default')}
+                            onDelete={handleDelete}
                             isHighContrast={isHighContrast}
                         />
                     </View>
@@ -519,6 +548,8 @@ export default function App() {
     );
 
     // ==================== Render Braille Mode (Full Screen) ====================
+
+    // Renders the full-screen Braille input mode
     const renderBrailleMode = () => (
         <SafeAreaView style={{ flex: 1, backgroundColor: isHighContrast ? '#222222' : 'transparent' }}>
             <View

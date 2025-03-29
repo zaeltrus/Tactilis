@@ -56,7 +56,7 @@ export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit
     // Container background now matches the input area: "#2E2E3A" in normal mode, "#333333" in high contrast.
     return (
         <View style={{ padding: 5, backgroundColor: isHighContrast ? '#333333' : '#2E2E3A' }}>
-            {/* Top Row: Centered row with enlarged preview square and braille dots */}
+            {/* Top Row: Centered row with preview square and braille dots */}
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, justifyContent: 'center' }}>
                 {/* Preview Square enlarged to 135x135, centered */}
                 <View style={{
@@ -73,7 +73,7 @@ export default function MiniBrailleKeyboard({ onAccept, onDelete, onSend, onExit
                         {previewLetter}
                     </Text>
                 </View>
-                {/* Braille Grid: Two columns of dots shifted slightly right */}
+                {/* Braille Grid: Two columns of dots */}
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'column', justifyContent: 'center', marginRight: 10 }}>
                         {["1", "2", "3"].map(dot => (

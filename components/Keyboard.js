@@ -15,11 +15,13 @@ export default function Keyboard({
                                      onEmoji,
                                      onNumbers,
                                  }) {
+    // Braille keys arranged in a typical QWERTY layout
     const topRowKeys = ['⠟', '⠺', '⠑', '⠗', '⠞', '⠽', '⠥', '⠊', '⠕', '⠏'];
     const secondRowKeys = ['⠁', '⠎', '⠙', '⠋', '⠛', '⠓', '⠚', '⠅', '⠇'];
     const thirdRowKeys = ['⠵', '⠭', '⠉', '⠧', '⠃', '⠝', '⠍'];
     const shiftKey = '⇧';
 
+    // Styles override for high contrast mode
     const keyOverrideStyle = {
         backgroundColor: '#333333',
         borderColor: '#FFFF00',
@@ -29,7 +31,7 @@ export default function Keyboard({
 
     return (
         <View style={[AppStyles.keyboard, isHighContrast && { backgroundColor: '#333333' }]}>
-            {/* Row 1 */}
+            {/* First row of Braille keys (Q-P) */}
             <View style={AppStyles.row}>
                 {topRowKeys.map((key, index) => (
                     <BrailleKey
@@ -44,7 +46,8 @@ export default function Keyboard({
                     />
                 ))}
             </View>
-            {/* Row 2 centered */}
+
+            {/* Second row of Braille keys (A-L) */}
             <View style={[AppStyles.row, { justifyContent: 'center' }]}>
                 {secondRowKeys.map((key, index) => (
                     <BrailleKey
@@ -59,7 +62,8 @@ export default function Keyboard({
                     />
                 ))}
             </View>
-            {/* Row 3 centered */}
+
+            {/* Third row including special keys (Shift, Z-M, Delete) */}
             <View style={[AppStyles.row, { justifyContent: 'center' }]}>
                 <BrailleKey
                     label={shiftKey}
