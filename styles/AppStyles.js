@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-// Base key size: 9% of screen width.
+// Dynamic size calculations
 const keySize = width * 0.09;
 const spacebarWidth = width * 0.5;
 const enterWidth = keySize * 2;
@@ -15,11 +15,11 @@ export default StyleSheet.create({
     // Content container for normal chat mode (chat area and input)
     contentContainer: {
         flex: 1,
-        paddingBottom: 230, // Reserve space for the keyboard
+        paddingBottom: 230,
     },
     // Header for normal chat mode
     header: {
-        height: 80, // Increased height so text is lower on the screen
+        height: 80,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 15,
@@ -59,7 +59,6 @@ export default StyleSheet.create({
         color: '#FFFFFF',
     },
     inputContainer: {
-        // Updated to accommodate two rows (playback row + input row)
         padding: 5,
         backgroundColor: '#2E2E3A',
     },
@@ -272,7 +271,7 @@ export default StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    // -------------------- New Styles for Playback and Input Rows --------------------
+    // -------------------- Playback and Input Rows --------------------
     playbackRow: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -293,7 +292,7 @@ export default StyleSheet.create({
     },
 
     circleButton: {
-        width: 35,      // Adjust size as needed
+        width: 35,
         height: 35,
         borderRadius: 25, // Half of width/height for a perfect circle
         alignItems: 'center',
@@ -334,13 +333,13 @@ export default StyleSheet.create({
         gridContainer: {
             flex: 1,
             flexDirection: 'row',
-            justifyContent: 'center', // brings columns closer together
+            justifyContent: 'center',
             alignItems: 'center',
         },
         column: {
             flexDirection: 'column',
             justifyContent: 'center',
-            marginHorizontal: 5, // smaller margin between columns
+            marginHorizontal: 5,
         },
         dot: {
             width: 40,
@@ -357,7 +356,7 @@ export default StyleSheet.create({
             alignItems: 'center',
         },
         controlButton: {
-            paddingVertical: 12,  // slightly smaller than before
+            paddingVertical: 12,
             paddingHorizontal: 20,
             borderRadius: 20,
         },
