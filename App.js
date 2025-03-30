@@ -85,6 +85,7 @@ export default function App() {
     const convertBrailleToLatin = (text) =>
         text.split('').map(char => brailleToLatin[char] || char).join('');
 
+
     // ==================== Haptic Feedback Functions ====================
 
     // Plays Morse code vibration for a single letter
